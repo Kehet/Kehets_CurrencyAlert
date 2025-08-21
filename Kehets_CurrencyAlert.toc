@@ -6,4 +6,3 @@
 ## RequiredDeps: Ace3
 
 Kehets_CurrencyAlert.lua
- 

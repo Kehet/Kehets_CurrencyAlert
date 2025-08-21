@@ -32,10 +32,12 @@ local function CheckCurrencyChanges()
                 if maxAmount > 1000 and maxAmount - currentAmount < 100 then
                     local message = string.format("%s soon full! (%d/%d)", name, currentAmount, maxAmount)
                     print(message)
+                    RaidNotice_AddMessage(RaidWarningFrame, message, ChatTypeInfo["RAID_WARNING"])
                     PlaySound(SOUNDKIT.ALARM_CLOCK_WARNING_2)
                 elseif maxAmount - currentAmount < 10 then
                     local message = string.format("%s soon full! (%d/%d)", name, currentAmount, maxAmount)
                     print(message)
+                    RaidNotice_AddMessage(RaidWarningFrame, message, ChatTypeInfo["RAID_WARNING"])
                     PlaySound(SOUNDKIT.ALARM_CLOCK_WARNING_2)
                 end
             end
