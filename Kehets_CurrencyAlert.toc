@@ -4,5 +4,6 @@
 ## Author: Kehet
 ## Version: 1.0.0
 ## RequiredDeps: Ace3
+## X-Wago-ID: ZKxqApGk
 
 Kehets_CurrencyAlert.lua
