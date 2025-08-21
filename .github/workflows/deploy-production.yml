@@ -1,0 +1,75 @@
+name: Production Deployment
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency: production_environment
+
+env:
+  WAGO_API_TOKEN: ${{ secrets.WAGO_API_TOKEN }}
+
+jobs:
+  release:
+    if: github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ inputs.source-branch }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Reset target branch on runner
+        run: |
+          git fetch origin ${{ inputs.target-branch }}:${{ inputs.target-branch }}
+          git reset --hard ${{ inputs.target-branch }}
+
+      - name: Build Changelog since the latest tag
+        id: build_changelog
+        run: |
+          LATEST_TAG=$(git describe --tags $(git rev-list --tags --max-count=1))
+          echo "latest_tag=$LATEST_TAG" >> $GITHUB_OUTPUT
+
+          EOF="$(dd if=/dev/urandom bs=15 count=1 status=none | base64)"
+          echo "CHANGELOG<<${EOF}" >> "${GITHUB_OUTPUT}"
+          echo "$(git log  --pretty=format:"${{ inputs.changelog-format }}" --no-merges ${LATEST_TAG}..HEAD)" >> "${GITHUB_OUTPUT}"
+          echo "${EOF}" >> "${GITHUB_OUTPUT}"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Choose and set PR title
+        id: title
+        run: |
+          DATE=$(date +%Y-%m-%d)
+          SEPERATOR="-"
+          for LETTER in {a..z}; do if [[ "$DATE$SEPARATOR$LETTER" > "${{ steps.build_changelog.outputs.latest_tag }}" ]]; then echo "pr_title=$DATE$SEPARATOR$LETTER" >> $GITHUB_OUTPUT && break; fi; done
+
+      - uses: BigWigsMods/packager@v2
+
+      - name: Create a GitHub release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.title.outputs.pr_title }}
+          release_name: ${{ inputs.release-name-prefix }}${{ steps.title.outputs.pr_title }}
+          body: |
+            ${{ steps.build_changelog.outputs.changelog }}
+
+      - name: Update target branch
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git checkout ${{ inputs.source-branch }}
+          git fetch origin
+          git checkout ${{ inputs.target-branch }}
+          git pull origin ${{ inputs.target-branch }}
+          git rebase origin/${{ inputs.source-branch }}
+          git push origin ${{ inputs.target-branch }} --force-with-lease

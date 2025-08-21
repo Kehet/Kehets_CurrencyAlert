@@ -1,0 +1,16 @@
+name: Auto pull request
+
+on:
+  push:
+    branches:
+      - release-candidate
+  workflow_dispatch:
+  workflow_call:
+
+permissions:
+  pull-requests: write
+  contents: write
+
+jobs:
+  autopull:
+    uses: Kehet/shared-github-workflows/.github/workflows/auto-pull-request.yml@master
