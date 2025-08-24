@@ -25,21 +25,26 @@ local function CheckCurrencyChanges()
         if currencyInfo then
             local currentAmount = currencyInfo.quantity or 0
             local previousAmount = previousCurrencies[currencyID] or 0
+            local maxAmount = currencyInfo.maxQuantity or 0
 
             if currentAmount > previousAmount then
-                local maxAmount = currencyInfo.maxQuantity or 0
-
                 if maxAmount > 1000 and maxAmount - currentAmount < 100 then
                     local message = string.format("%s soon full! (%d/%d)", name, currentAmount, maxAmount)
-                    print(message)
+                    CurrencyAlert:Print(message)
                     RaidNotice_AddMessage(RaidWarningFrame, message, ChatTypeInfo["RAID_WARNING"])
                     PlaySound(SOUNDKIT.ALARM_CLOCK_WARNING_2)
                 elseif maxAmount - currentAmount < 10 then
                     local message = string.format("%s soon full! (%d/%d)", name, currentAmount, maxAmount)
-                    print(message)
+                    CurrencyAlert:Print(message)
                     RaidNotice_AddMessage(RaidWarningFrame, message, ChatTypeInfo["RAID_WARNING"])
                     PlaySound(SOUNDKIT.ALARM_CLOCK_WARNING_2)
                 end
+            elseif maxAmount > 0 and currentAmount == maxAmount and currentAmount == previousAmount then
+                -- Currency overflow detected: event fired but amount didn't change because it's at max
+                local message = string.format("%s is full! Currency overflow detected! (%d/%d)", name, currentAmount, maxAmount)
+                CurrencyAlert:Print(message)
+                RaidNotice_AddMessage(RaidWarningFrame, message, ChatTypeInfo["RAID_WARNING"])
+                PlaySound(SOUNDKIT.ALARM_CLOCK_WARNING_3)
             end
 
             previousCurrencies[currencyID] = currentAmount
