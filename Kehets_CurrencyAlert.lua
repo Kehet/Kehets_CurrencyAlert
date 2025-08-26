@@ -149,13 +149,15 @@ local function CreateOptionsTable()
 end
 
 function CurrencyAlert:OnInitialize()
-    self:ScheduleTimer("DelayedInitialize", 2)
+    self:ScheduleTimer("DelayedInitialize", 5)
 
     LibStub("AceConfig-3.0"):RegisterOptionsTable("CurrencyAlert", CreateOptionsTable)
     LibStub("AceConfigDialog-3.0"):AddToBlizOptions("CurrencyAlert", "Kehet's CurrencyAlert")
 end
 
 function CurrencyAlert:DelayedInitialize()
+    self:Print("Enabled")
+
     self.db = LibStub("AceDB-3.0"):New("CurrencyAlertDB", CreateDatabaseDefaults(), true)
 
     for currencyID, settings in pairs(CurrencyAlert.db.profile.currencies) do
@@ -164,48 +166,94 @@ function CurrencyAlert:DelayedInitialize()
             previousCurrencies[currencyID] = currencyInfo.quantity or 0
         end
     end
-end
 
-function CurrencyAlert:OnEnable()
-    self:Print("Enabled")
     self:RegisterEvent("CURRENCY_DISPLAY_UPDATE")
+    --@debug@
+    self:Print("Database initialized and events registered")
+    --@end-debug@
 end
 
-function CurrencyAlert:CURRENCY_DISPLAY_UPDATE()
-    for currencyID, settings in pairs(CurrencyAlert.db.profile.currencies) do
-        if settings.enabled then
-            local currencyInfo = C_CurrencyInfo.GetCurrencyInfo(currencyID)
-            if currencyInfo then
-                local currentAmount = currencyInfo.quantity or 0
-                local previousAmount = previousCurrencies[currencyID] or 0
-                local maxAmount = currencyInfo.maxQuantity or 0
-                local name = nil
+function CurrencyAlert:CURRENCY_DISPLAY_UPDATE(event, currencyID)
+    --@debug@
+    self:Print("event:"..event)
+    self:Print("currencyID:"..currencyID)
+    --@end-debug@
 
-                -- Find currency name in the new structure
-                for categoryName, currencies in pairs(KNOWN_CURRENCIES) do
-                    if currencies[currencyID] then
-                        name = currencies[currencyID]
-                        break
-                    end
+    if not currencyID then
+        --@debug@
+        self:Print("No currencyID provided")
+        --@end-debug@
+        return
+    end
+
+    -- Safety check: ensure database is initialized
+    if not self.db or not self.db.profile or not self.db.profile.currencies then
+        --@debug@
+        self:Print("Database not yet initialized, ignoring event")
+        --@end-debug@
+        return
+    end
+
+    local settings = self.db.profile.currencies[currencyID]
+    if not settings then
+        --@debug@
+        self:Print("No settings found for currencyID:"..currencyID)
+        --@end-debug@
+        return
+    end
+
+    --@debug@
+    self:Print("settings found for currencyID:"..currencyID)
+    --@end-debug@
+
+    if settings.enabled then
+        local currencyInfo = C_CurrencyInfo.GetCurrencyInfo(currencyID)
+        if currencyInfo then
+            local currentAmount = currencyInfo.quantity or 0
+            local previousAmount = previousCurrencies[currencyID] or 0
+            local maxAmount = currencyInfo.maxQuantity or 0
+            local name = nil
+
+            -- Find currency name in the new structure
+            for categoryName, currencies in pairs(KNOWN_CURRENCIES) do
+                if currencies[currencyID] then
+                    name = currencies[currencyID]
+                    break
                 end
-                name = name or ("Currency " .. currencyID)
-
-                local threshold = settings.threshold or 100
-
-                if maxAmount > 0 and maxAmount - currentAmount <= threshold and currentAmount > previousAmount then
-                    local message = string.format("%s soon full! (%d/%d)", name, currentAmount, maxAmount)
-                    CurrencyAlert:Print(message)
-                    RaidNotice_AddMessage(RaidWarningFrame, message, ChatTypeInfo["RAID_WARNING"])
-                    PlaySound(SOUNDKIT.ALARM_CLOCK_WARNING_2)
-                elseif maxAmount > 0 and currentAmount == maxAmount and currentAmount == previousAmount then
-                    local message = string.format("%s is full! (%d/%d)", name, currentAmount, maxAmount)
-                    CurrencyAlert:Print(message)
-                    RaidNotice_AddMessage(RaidWarningFrame, message, ChatTypeInfo["RAID_WARNING"])
-                    PlaySound(SOUNDKIT.ALARM_CLOCK_WARNING_3)
-                end
-
-                previousCurrencies[currencyID] = currentAmount
             end
+            name = name or ("Currency " .. currencyID)
+
+            local threshold = settings.threshold or 100
+
+            if maxAmount > 0 and currentAmount >= threshold and currentAmount > previousAmount then
+                --@debug@
+                self:Print("currencyID="..currencyID)
+                self:Print("maxAmount="..maxAmount)
+                self:Print("currentAmount="..currentAmount)
+                self:Print("settings.threshold="..settings.threshold)
+                self:Print("previousAmount="..previousAmount)
+                --@end-debug@
+
+                local message = string.format("%s soon full! (%d/%d)", name, currentAmount, maxAmount)
+                CurrencyAlert:Print(message)
+                RaidNotice_AddMessage(RaidWarningFrame, message, ChatTypeInfo["RAID_WARNING"])
+                PlaySound(SOUNDKIT.ALARM_CLOCK_WARNING_2)
+            elseif maxAmount > 0 and currentAmount == maxAmount and currentAmount == previousAmount then
+                --@debug@
+                self:Print("currencyID="..currencyID)
+                self:Print("maxAmount="..maxAmount)
+                self:Print("currentAmount="..currentAmount)
+                self:Print("settings.threshold="..settings.threshold)
+                self:Print("previousAmount="..previousAmount)
+                --@end-debug@
+
+                local message = string.format("%s is full! (%d/%d)", name, currentAmount, maxAmount)
+                CurrencyAlert:Print(message)
+                RaidNotice_AddMessage(RaidWarningFrame, message, ChatTypeInfo["RAID_WARNING"])
+                PlaySound(SOUNDKIT.ALARM_CLOCK_WARNING_3)
+            end
+
+            previousCurrencies[currencyID] = currentAmount
         end
     end
 end
