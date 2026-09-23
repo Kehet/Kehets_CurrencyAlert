@@ -40,7 +40,8 @@ local function CreateDatabaseDefaults()
 
     for categoryName, currencies in pairs(KNOWN_CURRENCIES) do
         for currencyID, name in pairs(currencies) do
-            local maxQuantity = (C_CurrencyInfo.GetCurrencyInfo(currencyID).maxQuantity or 0);
+            local currencyInfo = C_CurrencyInfo.GetCurrencyInfo(currencyID)
+            local maxQuantity = (currencyInfo and currencyInfo.maxQuantity or 0);
             local threshold = maxQuantity;
 
             if maxQuantity > 1000 then
@@ -50,7 +51,8 @@ local function CreateDatabaseDefaults()
             elseif maxQuantity > 10 then
                 threshold = maxQuantity - 10;
             else
-                threshold = maxQuantity - 2;
+                -- Small caps like Elder Charm (3) would alert on every gain with a bigger margin
+                threshold = maxQuantity - 1;
             end
 
             defaults.profile.currencies[currencyID] = {
@@ -85,6 +87,13 @@ local function CreateOptionsTable()
         }
     }
 
+    -- The database is created after a delay, so the panel can be opened before it exists
+    if not CurrencyAlert.db then
+        options.args.desc.name = "Settings are available a few seconds after login."
+        options.args.currencies = nil
+        return options
+    end
+
     -- Populate currency groups
     local categoryOrder = 1
     for categoryName, currencies in pairs(KNOWN_CURRENCIES) do
@@ -96,7 +105,8 @@ local function CreateOptionsTable()
         }
 
         for currencyID, name in pairs(currencies) do
-            local maxQuantity = C_CurrencyInfo.GetCurrencyInfo(currencyID).maxQuantity or 1
+            local currencyInfo = C_CurrencyInfo.GetCurrencyInfo(currencyID)
+            local maxQuantity = currencyInfo and currencyInfo.maxQuantity or 1
 
             options.args.currencies.args[categoryName:lower()].args["currency_" .. currencyID] = {
                 type = "group",
@@ -123,7 +133,7 @@ local function CreateOptionsTable()
                     threshold = {
                         type = "range",
                         name = "Alert Threshold",
-                        desc = "Alert when currency is within this many of being full",
+                        desc = "Alert when you have at least this many",
                         order = 2,
                         min = 0,
                         max = maxQuantity,
@@ -168,6 +178,7 @@ function CurrencyAlert:DelayedInitialize()
     end
 
     self:RegisterEvent("CURRENCY_DISPLAY_UPDATE")
+    LibStub("AceConfigRegistry-3.0"):NotifyChange("CurrencyAlert")
     --@debug@
     self:Print("Database initialized and events registered")
     --@end-debug@
@@ -176,7 +187,6 @@ end
 function CurrencyAlert:CURRENCY_DISPLAY_UPDATE(event, currencyID)
     --@debug@
     self:Print("event:"..event)
-    self:Print("currencyID:"..currencyID)
     --@end-debug@
 
     if not currencyID then
@@ -185,6 +195,10 @@ function CurrencyAlert:CURRENCY_DISPLAY_UPDATE(event, currencyID)
         --@end-debug@
         return
     end
+
+    --@debug@
+    self:Print("currencyID:"..currencyID)
+    --@end-debug@
 
     -- Safety check: ensure database is initialized
     if not self.db or not self.db.profile or not self.db.profile.currencies then
@@ -230,7 +244,7 @@ function CurrencyAlert:CURRENCY_DISPLAY_UPDATE(event, currencyID)
                 self:Print("currencyID="..currencyID)
                 self:Print("maxAmount="..maxAmount)
                 self:Print("currentAmount="..currentAmount)
-                self:Print("settings.threshold="..settings.threshold)
+                self:Print("threshold="..threshold)
                 self:Print("previousAmount="..previousAmount)
                 --@end-debug@
 
@@ -243,7 +257,7 @@ function CurrencyAlert:CURRENCY_DISPLAY_UPDATE(event, currencyID)
                 self:Print("currencyID="..currencyID)
                 self:Print("maxAmount="..maxAmount)
                 self:Print("currentAmount="..currentAmount)
-                self:Print("settings.threshold="..settings.threshold)
+                self:Print("threshold="..threshold)
                 self:Print("previousAmount="..previousAmount)
                 --@end-debug@
 
