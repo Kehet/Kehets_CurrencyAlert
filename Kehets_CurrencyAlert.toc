@@ -5,6 +5,5 @@
 ## Version: @project-version@
 ## RequiredDeps: Ace3
 ## SavedVariables: CurrencyAlertDB
-## X-Wago-ID: ZKxqApGk
 
 Kehets_CurrencyAlert.lua
