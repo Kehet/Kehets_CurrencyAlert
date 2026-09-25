@@ -3,8 +3,8 @@
 ## Notes: Prevent wasting currencies on overflow
 ## Author: Kehet
 ## Version: @project-version@
-## RequiredDeps: Ace3
+## OptionalDeps: Ace3
 ## SavedVariables: CurrencyAlertDB
-## X-Wago-ID: ZKxqApGk
 
+embeds.xml
 Kehets_CurrencyAlert.lua
