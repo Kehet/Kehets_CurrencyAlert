@@ -31,6 +31,20 @@ local KNOWN_CURRENCIES = {
 
 local previousCurrencies = {}
 
+-- Worked out from the live cap because an undiscovered currency reports a cap of 0 at login
+local function DefaultThreshold(maxQuantity)
+    if maxQuantity > 1000 then
+        return maxQuantity - 500
+    elseif maxQuantity > 100 then
+        return maxQuantity - 25
+    elseif maxQuantity > 10 then
+        return maxQuantity - 10
+    end
+
+    -- Small caps like Elder Charm (3) would alert on every gain with a bigger margin
+    return math.max(maxQuantity - 1, 0)
+end
+
 local function CreateDatabaseDefaults()
     local defaults = {
         profile = {
@@ -40,24 +54,8 @@ local function CreateDatabaseDefaults()
 
     for categoryName, currencies in pairs(KNOWN_CURRENCIES) do
         for currencyID, name in pairs(currencies) do
-            local currencyInfo = C_CurrencyInfo.GetCurrencyInfo(currencyID)
-            local maxQuantity = (currencyInfo and currencyInfo.maxQuantity or 0);
-            local threshold = maxQuantity;
-
-            if maxQuantity > 1000 then
-                threshold = maxQuantity - 500;
-            elseif maxQuantity > 100 then
-                threshold = maxQuantity - 25;
-            elseif maxQuantity > 10 then
-                threshold = maxQuantity - 10;
-            else
-                -- Small caps like Elder Charm (3) would alert on every gain with a bigger margin
-                threshold = maxQuantity - 1;
-            end
-
             defaults.profile.currencies[currencyID] = {
-                enabled = true,
-                threshold = threshold
+                enabled = true
             }
         end
     end
@@ -139,7 +137,7 @@ local function CreateOptionsTable()
                         max = maxQuantity,
                         step = 1,
                         get = function(info)
-                            return CurrencyAlert.db.profile.currencies[currencyID].threshold or 0
+                            return CurrencyAlert.db.profile.currencies[currencyID].threshold or DefaultThreshold(maxQuantity)
                         end,
                         set = function(info, value)
                             CurrencyAlert.db.profile.currencies[currencyID].threshold = value
@@ -237,7 +235,7 @@ function CurrencyAlert:CURRENCY_DISPLAY_UPDATE(event, currencyID)
             end
             name = name or ("Currency " .. currencyID)
 
-            local threshold = settings.threshold or 100
+            local threshold = settings.threshold or DefaultThreshold(maxAmount)
 
             if maxAmount > 0 and currentAmount >= threshold and currentAmount > previousAmount then
                 --@debug@
