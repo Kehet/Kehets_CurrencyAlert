@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.0.4](https://github.com/Kehet/Kehets_CurrencyAlert/compare/2.0.3...2.0.4) (2026-09-27)
+
+
+### Bug Fixes
+
+* compute default alert thresholds from the live currency cap ([#8](https://github.com/Kehet/Kehets_CurrencyAlert/issues/8)) ([1cf5a9f](https://github.com/Kehet/Kehets_CurrencyAlert/commit/1cf5a9fb90c7787845dc2502a4b90b93cd76e27f))
+
 ## [2.0.3](https://github.com/Kehet/Kehets_CurrencyAlert/compare/2.0.2...2.0.3) (2026-09-25)
 
 
