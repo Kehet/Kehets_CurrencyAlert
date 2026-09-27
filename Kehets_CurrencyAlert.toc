@@ -6,5 +6,7 @@
 ## OptionalDeps: Ace3
 ## SavedVariables: CurrencyAlertDB
 
-embeds.xml
+#@non-debug@
+# embeds.xml
+#@end-non-debug@
 Kehets_CurrencyAlert.lua
