@@ -35,3 +35,7 @@ Open Options > AddOns > Kehet's CurrencyAlert. Each currency has a toggle for tr
 
 - World of Warcraft: Mists of Pandaria Classic
 - The [Ace3](https://www.curseforge.com/wow/addons/ace3) addon
+
+## License
+
+Public domain (The Unlicense). See `LICENSE`.
