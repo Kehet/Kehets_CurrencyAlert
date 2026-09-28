@@ -52,8 +52,8 @@ local function CreateDatabaseDefaults()
         }
     }
 
-    for categoryName, currencies in pairs(KNOWN_CURRENCIES) do
-        for currencyID, name in pairs(currencies) do
+    for _, currencies in pairs(KNOWN_CURRENCIES) do
+        for currencyID in pairs(currencies) do
             defaults.profile.currencies[currencyID] = {
                 enabled = true
             }
@@ -123,8 +123,8 @@ local function CreateOptionsTable()
                             CurrencyAlert.db.profile.currencies[currencyID].enabled = value
 
                             if value then
-                                local currencyInfo = C_CurrencyInfo.GetCurrencyInfo(currencyID)
-                                previousCurrencies[currencyID] = currencyInfo.quantity or 0
+                                local current = C_CurrencyInfo.GetCurrencyInfo(currencyID)
+                                previousCurrencies[currencyID] = current.quantity or 0
                             end
                         end,
                     },
@@ -227,7 +227,7 @@ function CurrencyAlert:CURRENCY_DISPLAY_UPDATE(event, currencyID)
             local name = nil
 
             -- Find currency name in the new structure
-            for categoryName, currencies in pairs(KNOWN_CURRENCIES) do
+            for _, currencies in pairs(KNOWN_CURRENCIES) do
                 if currencies[currencyID] then
                     name = currencies[currencyID]
                     break
