@@ -3,7 +3,7 @@
 ## Notes: Prevent wasting currencies on overflow
 ## Author: Kehet
 ## Version: @project-version@
-## OptionalDeps: Ace3
+## OptionalDeps: Ace3, LibKehetsVerbosity-1.0
 ## SavedVariables: CurrencyAlertDB
 
 #@non-debug@
