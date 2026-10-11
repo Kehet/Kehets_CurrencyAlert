@@ -9,10 +9,6 @@ exclude_files = {
 -- WoW API, FrameXML and libraries
 read_globals = {
     "C_CurrencyInfo",
-    "ChatTypeInfo",
     "LibStub",
-    "PlaySound",
-    "RaidNotice_AddMessage",
-    "RaidWarningFrame",
     "SOUNDKIT",
 }

@@ -1,4 +1,27 @@
-local CurrencyAlert = LibStub("AceAddon-3.0"):NewAddon("Kehet's CurrencyAlert", "AceEvent-3.0", "AceConsole-3.0", "AceTimer-3.0")
+local CurrencyAlert = LibStub("AceAddon-3.0"):NewAddon("Kehet's CurrencyAlert", "AceEvent-3.0", "AceConsole-3.0", "AceTimer-3.0", "LibKehetsVerbosity-1.0")
+
+-- Messages the player can turn off or move in the Messages settings
+CurrencyAlert:RegisterMessageTypes({
+    banner = {
+        name = "Login message",
+        desc = "The line that says the addon is enabled.",
+        order = 1,
+    },
+    almostFull = {
+        name = "Currency soon full",
+        desc = "A tracked currency went up and is at or above its alert threshold.",
+        order = 2,
+        outputs = { "chat", "raid" },
+        sound = { kit = SOUNDKIT.ALARM_CLOCK_WARNING_2, channel = "SFX" },
+    },
+    full = {
+        name = "Currency full",
+        desc = "A tracked currency is at its cap.",
+        order = 3,
+        outputs = { "chat", "raid" },
+        sound = { kit = SOUNDKIT.ALARM_CLOCK_WARNING_3, channel = "SFX" },
+    },
+})
 
 local KNOWN_CURRENCIES = {
     ["Archaeology"] = {
@@ -153,6 +176,9 @@ local function CreateOptionsTable()
         categoryOrder = categoryOrder + 1
     end
 
+    options.args.messages = CurrencyAlert:GetMessageOptions()
+    options.args.messages.order = 3
+
     return options
 end
 
@@ -164,9 +190,10 @@ function CurrencyAlert:OnInitialize()
 end
 
 function CurrencyAlert:DelayedInitialize()
-    self:Print("Enabled")
-
     self.db = LibStub("AceDB-3.0"):New("CurrencyAlertDB", CreateDatabaseDefaults(), true)
+
+    -- After the database exists, so the message follows its setting
+    self:Notify("banner", "Enabled")
 
     for currencyID, settings in pairs(CurrencyAlert.db.profile.currencies) do
         if settings.enabled then
@@ -247,9 +274,7 @@ function CurrencyAlert:CURRENCY_DISPLAY_UPDATE(event, currencyID)
                 --@end-debug@
 
                 local message = string.format("%s soon full! (%d/%d)", name, currentAmount, maxAmount)
-                CurrencyAlert:Print(message)
-                RaidNotice_AddMessage(RaidWarningFrame, message, ChatTypeInfo["RAID_WARNING"])
-                PlaySound(SOUNDKIT.ALARM_CLOCK_WARNING_2)
+                self:Notify("almostFull", message)
             elseif maxAmount > 0 and currentAmount == maxAmount and currentAmount == previousAmount then
                 --@debug@
                 self:Print("currencyID="..currencyID)
@@ -260,9 +285,7 @@ function CurrencyAlert:CURRENCY_DISPLAY_UPDATE(event, currencyID)
                 --@end-debug@
 
                 local message = string.format("%s is full! (%d/%d)", name, currentAmount, maxAmount)
-                CurrencyAlert:Print(message)
-                RaidNotice_AddMessage(RaidWarningFrame, message, ChatTypeInfo["RAID_WARNING"])
-                PlaySound(SOUNDKIT.ALARM_CLOCK_WARNING_3)
+                self:Notify("full", message)
             end
 
             previousCurrencies[currencyID] = currentAmount
