@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.1.0](https://github.com/Kehet/Kehets_CurrencyAlert/compare/2.0.4...2.1.0) (2026-10-11)
+
+
+### Features
+
+* add message settings for the alerts and the login message ([#15](https://github.com/Kehet/Kehets_CurrencyAlert/issues/15)) ([ff2b786](https://github.com/Kehet/Kehets_CurrencyAlert/commit/ff2b786151854ddf8affddc43269a5657c2b4689))
+
 ## [2.0.4](https://github.com/Kehet/Kehets_CurrencyAlert/compare/2.0.3...2.0.4) (2026-09-27)
 
 
