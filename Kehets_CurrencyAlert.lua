@@ -21,6 +21,13 @@ CurrencyAlert:RegisterMessageTypes({
         outputs = { "chat", "raid" },
         sound = { kit = SOUNDKIT.ALARM_CLOCK_WARNING_3, channel = "SFX" },
     },
+    debug = {
+        name = "Debug output",
+        desc = "Each currency update the addon sees and why it did or did not alert.",
+        order = 4,
+        shown = false,
+        tag = "|cFF66B2FF[Debug]|r",
+    },
 })
 
 local KNOWN_CURRENCIES = {
@@ -204,46 +211,36 @@ function CurrencyAlert:DelayedInitialize()
 
     self:RegisterEvent("CURRENCY_DISPLAY_UPDATE")
     LibStub("AceConfigRegistry-3.0"):NotifyChange("CurrencyAlert")
-    --@debug@
-    self:Print("Database initialized and events registered")
-    --@end-debug@
+    self:Debug("Database initialized and events registered")
+end
+
+function CurrencyAlert:Debug(message)
+    self:Notify("debug", message)
 end
 
 function CurrencyAlert:CURRENCY_DISPLAY_UPDATE(event, currencyID)
-    --@debug@
-    self:Print("event:"..event)
-    --@end-debug@
+    self:Debug("event:"..event)
 
     if not currencyID then
-        --@debug@
-        self:Print("No currencyID provided")
-        --@end-debug@
+        self:Debug("No currencyID provided")
         return
     end
 
-    --@debug@
-    self:Print("currencyID:"..currencyID)
-    --@end-debug@
+    self:Debug("currencyID:"..currencyID)
 
     -- Safety check: ensure database is initialized
     if not self.db or not self.db.profile or not self.db.profile.currencies then
-        --@debug@
-        self:Print("Database not yet initialized, ignoring event")
-        --@end-debug@
+        self:Debug("Database not yet initialized, ignoring event")
         return
     end
 
     local settings = self.db.profile.currencies[currencyID]
     if not settings then
-        --@debug@
-        self:Print("No settings found for currencyID:"..currencyID)
-        --@end-debug@
+        self:Debug("No settings found for currencyID:"..currencyID)
         return
     end
 
-    --@debug@
-    self:Print("settings found for currencyID:"..currencyID)
-    --@end-debug@
+    self:Debug("settings found for currencyID:"..currencyID)
 
     if settings.enabled then
         local currencyInfo = C_CurrencyInfo.GetCurrencyInfo(currencyID)
@@ -265,24 +262,14 @@ function CurrencyAlert:CURRENCY_DISPLAY_UPDATE(event, currencyID)
             local threshold = settings.threshold or DefaultThreshold(maxAmount)
 
             if maxAmount > 0 and currentAmount >= threshold and currentAmount > previousAmount then
-                --@debug@
-                self:Print("currencyID="..currencyID)
-                self:Print("maxAmount="..maxAmount)
-                self:Print("currentAmount="..currentAmount)
-                self:Print("threshold="..threshold)
-                self:Print("previousAmount="..previousAmount)
-                --@end-debug@
+                self:Debug(string.format("currencyID=%d maxAmount=%d currentAmount=%d threshold=%d previousAmount=%d",
+                    currencyID, maxAmount, currentAmount, threshold, previousAmount))
 
                 local message = string.format("%s soon full! (%d/%d)", name, currentAmount, maxAmount)
                 self:Notify("almostFull", message)
             elseif maxAmount > 0 and currentAmount == maxAmount and currentAmount == previousAmount then
-                --@debug@
-                self:Print("currencyID="..currencyID)
-                self:Print("maxAmount="..maxAmount)
-                self:Print("currentAmount="..currentAmount)
-                self:Print("threshold="..threshold)
-                self:Print("previousAmount="..previousAmount)
-                --@end-debug@
+                self:Debug(string.format("currencyID=%d maxAmount=%d currentAmount=%d threshold=%d previousAmount=%d",
+                    currencyID, maxAmount, currentAmount, threshold, previousAmount))
 
                 local message = string.format("%s is full! (%d/%d)", name, currentAmount, maxAmount)
                 self:Notify("full", message)
