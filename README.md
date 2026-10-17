@@ -31,7 +31,7 @@ The default threshold depends on the cap:
 
 Open Options > AddOns > Kehet's CurrencyAlert. Each currency has a toggle for tracking and a slider for its alert threshold. The settings become available a few seconds after login.
 
-The Messages group has the login message and the two alerts. Each message has these settings:
+The Messages group has the login message, the two alerts and the debug output. The debug output is off by default. It shows each currency update the addon sees and why it did or did not alert. Its lines start with `[Debug]`. Each message has these settings:
 
 - Show: turn the message on or off.
 - Show in: one or more of the chat windows, the error frame, the raid warning frame, the boss emote frame and the floating combat text. Parrot, MikScrollingBattleText, BigWigs and DBM outputs are listed while those addons are loaded.
