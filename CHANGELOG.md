@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.2.1](https://github.com/Kehet/Kehets_CurrencyAlert/compare/2.2.0...2.2.1) (2026-11-04)
+
+
+### Bug Fixes
+
+* upload releases to Wago ([#21](https://github.com/Kehet/Kehets_CurrencyAlert/issues/21)) ([9cf8fe9](https://github.com/Kehet/Kehets_CurrencyAlert/commit/9cf8fe90a82a5eb4caf417f4b00aa89e30aa855d))
+
 ## [2.2.0](https://github.com/Kehet/Kehets_CurrencyAlert/compare/2.1.0...2.2.0) (2026-11-04)
 
 
