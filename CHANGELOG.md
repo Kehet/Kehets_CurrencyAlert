@@ -1,5 +1,17 @@
 # Changelog
 
+## [2.2.0](https://github.com/Kehet/Kehets_CurrencyAlert/compare/2.1.0...2.2.0) (2026-11-04)
+
+
+### Features
+
+* add a Debug output message type for the debug prints ([#17](https://github.com/Kehet/Kehets_CurrencyAlert/issues/17)) ([5100046](https://github.com/Kehet/Kehets_CurrencyAlert/commit/51000465966bea74ad50b5f0bdda9415b2c3bccc))
+
+
+### Bug Fixes
+
+* add CurseForge project id to the TOC ([#20](https://github.com/Kehet/Kehets_CurrencyAlert/issues/20)) ([8d21636](https://github.com/Kehet/Kehets_CurrencyAlert/commit/8d2163650dbb93dbd7a35c96b38a9c926110f4be))
+
 ## [2.1.0](https://github.com/Kehet/Kehets_CurrencyAlert/compare/2.0.4...2.1.0) (2026-10-11)
 
 
