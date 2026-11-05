@@ -1,4 +1,4 @@
-## Interface: 50504
+## Interface: 50504, 16001
 ## Title: |cFF009900Kehet's|r CurrencyAlert
 ## Notes: Prevent wasting currencies on overflow
 ## Author: Kehet
